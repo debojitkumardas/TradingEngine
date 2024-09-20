@@ -1,7 +1,7 @@
 /**
  * @file helper.cpp
  * @author Debojit Kumar Das
- * @brief This file defines orderbook entry class
+ * @brief This file implements the interface for helper class which provides various methods to ....
  * @version 0.1
  * @date 2023-11-25
  *
@@ -9,27 +9,21 @@
  */
 
 #include "helper.hpp"
-#include "csv_reader.hpp"
+#include "orderbookentry.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 
-Helper::Helper() : orders{} { }
+Helper::Helper(){}
 
-void Helper::Init(std::string file_path) {
+void Helper::Init([[maybe_unused]] std::string file_path) {
     int input;
-
-    LoadOrderBook(file_path);
-
+    m_current_time = m_orderbook.GetEarliestTime();
     while (true) {
         PrintMenu();
         input = GetUserOption();
         ProcessUserOption(input);
     }
-}
-
-void Helper::LoadOrderBook(std::string& file_path) {
-    orders = CSVReader::ReadCSV(file_path);
 }
 
 void Helper::PrintMenu() {
@@ -41,24 +35,34 @@ void Helper::PrintMenu() {
         << "5. Print Wallet \n"
         << "6. Continue \n"
         << "0. Exit \n"
-        << "===========================\n";
+        << "===========================\n"
+        << "Current time is: " << m_current_time << '\n';
 }
 void Helper::PrintHelp() {
     std::cout << "Help - your aim is to make money. Analyse the market and make money.\n";
 }
 void Helper::PrintMarketStats() {
-    std::cout << "Oderbook contains: " << orders.size() << " entries.\n";
-    unsigned int bids = 0;
-    unsigned int asks = 0;
+    for (auto const& p : m_orderbook.GetKnownProducts()) {
+        std::cout << "Product: " << p << std::endl;
 
-    for (auto& ord : orders) {
-        if (ord.CheckOrderType(ord) == OrderBookType::ASK)
-            asks++;
-        if (ord.CheckOrderType(ord) == OrderBookType::BID)
-            bids++;
+        std::vector<OrderBookEntry> entries = m_orderbook.GetOrders(OrderType::ASK, p, m_current_time);
+
+        std::cout << "Asks for product: " << entries.size() << std::endl;
+        std::cout << "Max ask: " << OrderBook::GetHighPrice(entries) << std::endl;
+        std::cout << "Min ask: " << OrderBook::GetLowPrice(entries) << std::endl;
     }
-
-    std::cout << "asks: " << asks << '\t' << "bids: " << bids << '\n';
+    // std::cout << "Oderbook contains: " << orders.size() << " entries.\n";
+    // unsigned int bids = 0;
+    // unsigned int asks = 0;
+    //
+    // for (auto& ord : orders) {
+    //     if (ord.CheckOrderType(ord) == OrderType::ASK)
+    //         asks++;
+    //     if (ord.CheckOrderType(ord) == OrderType::BID)
+    //         bids++;
+    // }
+    //
+    // std::cout << "asks: " << asks << '\t' << "bids: " << bids << '\n';
 }
 
 void Helper::EnterOffer() {
@@ -75,6 +79,7 @@ void Helper::PrintWallet() {
 
 void Helper::GotoNextTimeframe() {
     std::cout << "Go to next time frame.\n";
+    m_current_time = m_orderbook.GetNextTime(m_current_time);
 }
 
 int Helper::GetUserOption() {

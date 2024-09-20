@@ -1,3 +1,13 @@
+/**
+ * @file orderbookentry.hpp
+ * @author Debojit Kumar Das
+ * @brief This file implements the interface to read and tokenise a CSV file and create orderbook entry objets using those tokens.
+ * @version 0.1
+ * @date 2023-11-25
+ *
+ * @copyright Copyright (c) 2023
+ */
+
 #include "csv_reader.hpp"
 #include <exception>
 #include <iostream>
@@ -5,7 +15,7 @@
 
 CSVReader::CSVReader() {}
 
-std::vector<OrderBookEntry> CSVReader::ReadCSV(std::string csv_file_path) {
+std::vector<OrderBookEntry> CSVReader::ReadCSV(std::string& csv_file_path) {
     std::vector<OrderBookEntry> entries;
     std::string line;
 
@@ -23,7 +33,7 @@ std::vector<OrderBookEntry> CSVReader::ReadCSV(std::string csv_file_path) {
             OrderBookEntry obe = StringsToOBEObj(Tokenise(line, ','));
             entries.push_back(obe);
         } catch (const std::exception& e) {
-            std::cout << "Bad value! " << line << std::endl;
+            std::cout << "Bad value!  Msg: " << e.what() << '\n';
             break;
         }
     }

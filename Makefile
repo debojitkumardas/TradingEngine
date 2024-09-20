@@ -10,11 +10,11 @@ HDR_DIR = ./include/
 # build dir
 BLD_DIR = ./build/
 # type of build
-TYPE = debug/
+TYPE = debug
 # dir for object files
-OBJ_DIR = $(BLD_DIR)$(TYPE)obj/
+OBJ_DIR = $(BLD_DIR)$(TYPE)/obj/
 # dir for bin
-BIN_DIR = $(BLD_DIR)$(TYPE)bin/
+BIN_DIR = $(BLD_DIR)$(TYPE)/bin/
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -31,7 +31,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++17 $(OPTS) -I$(HDR_DIR) $(DEPFLAGS)
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # for release build
 release: OPTS = -O2 -DNDEBUG
-release: TYPE = release/
+release: TYPE = release
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -65,15 +65,19 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+.PHONY: run
 run:
-	$(BIN)
+	@./$(BIN)
 
-run_with_valgrind:
-	valgrind --enable-debuginfod=no --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes -s --verbose --log-file=valgrind_out.txt ./bin/main
+.PHONY: with_valgrind
+with_valgrind:
+	valgrind --enable-debuginfod=no --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes -s --verbose --log-file=valgrind_out.txt ./$(BIN)
 
+.PHONY: clean
 clean:
 	@rm -rf $(BIN)
 
-deepclean:
+.PHONY: cleanall
+cleanall:
 	@rm -rf $(BIN) $(OBJ_DIR)*
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
